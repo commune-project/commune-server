@@ -1,9 +1,3 @@
-pub mod actor;
-pub mod image;
-
-pub use actor::ActorSerializer;
-pub use image::ImageSerializer;
-
 use serde_json::{
     json,
     value::Value

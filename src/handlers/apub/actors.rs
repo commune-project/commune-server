@@ -2,14 +2,11 @@ use crate::db::actions;
 use crate::state::AppState;
 use crate::errors;
 use crate::apub;
-use crate::apub::webfinger;
 
 use tokio;
 use warp;
 use warp::Reply;
 use std::sync::Arc;
-use serde::Deserialize;
-use serde_json::Value;
 
 pub async fn get_user(
     app_state: Arc<AppState>,
@@ -46,7 +43,7 @@ pub async fn get_user(
 
 
 pub async fn get_user_outbox(
-    app_state: Arc<AppState>,
+    _app_state: Arc<AppState>,
     domain: String,
     username: String
 ) -> Result<impl warp::Reply, warp::Rejection> {

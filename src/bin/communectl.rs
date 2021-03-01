@@ -59,7 +59,7 @@ fn subcmd_user_create(args: Vec<String>) {
     let args_usage = args[0..3].to_vec();
     let matches = match opts.parse(&args[3..]) {
         Ok(m) => m,
-        Err(f) => {
+        Err(_f) => {
             println!("{}", help_opts(&args_usage, &opts));
             panic!("required opt");
         },

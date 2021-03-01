@@ -1,7 +1,5 @@
-use crate::db::actions;
 use crate::state::AppState;
 use crate::errors;
-use crate::apub::serializers::actor::ActorSerializer;
 use crate::apub::webfinger;
 
 use tokio;
@@ -9,7 +7,6 @@ use warp;
 use warp::Reply;
 use std::sync::Arc;
 use serde::Deserialize;
-use serde_json::Value;
 
 pub fn map_content_type_webfinger<T: warp::reply::Reply>(reply: T) -> warp::reply::WithHeader<T> {
     warp::reply::with_header(reply, "Content-Type", "application/jrd+json; charset=utf-8")

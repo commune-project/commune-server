@@ -1,6 +1,6 @@
 use crate::db::schema::users;
 
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
 #[derive(Clone, Identifiable, Queryable, Insertable, Associations, PartialEq, Debug, Default, Validate)]
 #[belongs_to(super::Actor)]

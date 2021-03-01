@@ -1,6 +1,5 @@
 use serde::Serialize;
 use derive_more::{Display, Error};
-use diesel;
 use warp;
 
 #[derive(Debug, Display, Error, Serialize)]

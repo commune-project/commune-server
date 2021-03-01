@@ -4,7 +4,7 @@ use chrono::prelude::Utc;
 use serde::{Deserialize, Serialize};
 use crate::apub::username::username_to_idna;
 
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
 #[derive(Clone, Queryable, Identifiable, PartialEq, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

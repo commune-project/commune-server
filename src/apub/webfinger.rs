@@ -6,7 +6,6 @@ use reqwest;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use url;
-use log;
 
 pub struct WebfingerInfo {
     pub acct: WebfingerAcct,

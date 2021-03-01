@@ -5,7 +5,7 @@ use diesel::PgConnection;
 use crate::apub;
 use crate::db::schema;
 
-use crate::db::models::actor::{Actor, ActorType, NewActor, NewLocalActorBuilder};
+use crate::db::models::actor::{Actor, ActorType, NewLocalActorBuilder};
 use crate::db::models::{User, UserActor};
 use crate::errors::{ActionError, ActionResult};
 
@@ -22,7 +22,7 @@ pub fn create_user(
 ) -> ActionResult<UserActor> {
     let password_hash = match bcrypt::hash(password.as_bytes(), bcrypt::DEFAULT_COST) {
         Ok(hash) => hash,
-        Err(err) => return Err(ActionError::InternalError),
+        Err(_err) => return Err(ActionError::InternalError),
     };
 
     let keypair = match apub::rsa::generate_key_pair_pem() {
@@ -42,7 +42,7 @@ pub fn create_user(
     let tm = AnsiTransactionManager::new();
 
     tm.begin_transaction(conn)
-        .map_err(|e| ActionError::InsertError)?;
+        .map_err(|_e| ActionError::InsertError)?;
 
     let actor = diesel::insert_into(schema::actors::table)
         .values(&new_actor)
