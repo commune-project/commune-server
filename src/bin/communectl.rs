@@ -1,18 +1,9 @@
+use commune::db::establish_connection;
 use commune::db::actions::user::create_user;
 
-use diesel::Connection;
-use diesel::PgConnection;
-use dotenv;
 use getopts::Options;
 use rpassword;
 use std::env;
-
-fn establish_connection() -> PgConnection {
-    dotenv::dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
-}
 
 fn help(subcmd: &str) {
     match subcmd {

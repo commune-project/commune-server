@@ -5,7 +5,7 @@ use std::env;
 use r2d2;
 use std::collections::HashSet;
 
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 // This struct represents state
 #[derive(Clone)]

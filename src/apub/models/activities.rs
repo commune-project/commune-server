@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{self, Value};
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
     // Properties according to
@@ -14,12 +14,12 @@ pub struct Activity {
     pub id: String,
     pub actor: String,
     pub object: serde_json::Value,
-    pub published: String,
-    pub to: Value,
-    pub cc: Value,
+    pub published: Option<String>,
+    pub to: Option<Value>,
+    pub cc: Option<Value>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Object {
     #[serde(rename = "@context", skip_serializing_if = "Option::is_none")]
@@ -42,7 +42,7 @@ pub struct Object {
     pub sensitive: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Tag {
     #[serde(rename = "type")]
     pub kind: String,

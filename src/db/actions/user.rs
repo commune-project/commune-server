@@ -1,4 +1,3 @@
-use diesel::connection::{AnsiTransactionManager, TransactionManager};
 use diesel::prelude::*;
 use diesel::PgConnection;
 
@@ -39,36 +38,30 @@ pub fn create_user(
     }
     .build();
 
-    let tm = AnsiTransactionManager::new();
+    conn.transaction::<UserActor, ActionError, _>(|| {
+        let actor = diesel::insert_into(schema::actors::table)
+            .values(&new_actor)
+            .get_result::<Actor>(conn)
+            .map_err(|_| ActionError::InsertError)?;
 
-    tm.begin_transaction(conn)
-        .map_err(|_e| ActionError::InsertError)?;
+        let email = match email {
+            "" => None,
+            _ => Some(String::from(email)),
+        };
+        let new_user = User {
+            actor_id: actor.id,
+            email,
+            is_email_verified: false,
+            password_hash: Some(password_hash),
+            private_key_pem: keypair.private,
+            register_ip,
+            ..Default::default()
+        };
+        let user = diesel::insert_into(schema::users::table)
+            .values(&new_user)
+            .get_result::<User>(conn)
+            .map_err(|_| ActionError::InsertError)?;
 
-    let actor = diesel::insert_into(schema::actors::table)
-        .values(&new_actor)
-        .get_result::<Actor>(conn)
-        .map_err(|_| ActionError::InsertError)?;
-    let email = match email {
-        "" => None,
-        _ => Some(String::from(email)),
-    };
-    let new_user = User {
-        actor_id: actor.id,
-        email,
-        is_email_verified: false,
-        password_hash: Some(password_hash),
-        private_key_pem: keypair.private,
-        register_ip,
-        ..Default::default()
-    };
-
-    let user = diesel::insert_into(schema::users::table)
-        .values(&new_user)
-        .get_result::<User>(conn)
-        .map_err(|_| ActionError::InsertError)?;
-
-    tm.commit_transaction(conn)
-        .map_err(|_| ActionError::InsertError)?;
-
-    Ok(UserActor { actor, user })
+        Ok(UserActor { actor, user })
+    })
 }

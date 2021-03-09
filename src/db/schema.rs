@@ -14,7 +14,7 @@ table! {
         followers_uri -> Nullable<Varchar>,
         following_uri -> Nullable<Varchar>,
         public_key_pem -> Text,
-        created_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
         lang -> Varchar,
         is_locked -> Bool,

@@ -7,8 +7,9 @@ use serde_json::{self, json};
 use std::convert::TryFrom;
 use crate::apub::serializers::get_context;
 use super::empty_string_or_none;
+use crate::apub::webfinger;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Actor {
     // Properties according to
@@ -47,7 +48,7 @@ impl Actor {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Outbox {
     #[serde(rename = "@context")]
@@ -58,6 +59,19 @@ pub struct Outbox {
     pub total_items: i64,
     pub ordered_items: Vec<Activity>,
 }
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Followers {
+    #[serde(rename = "@context")]
+    pub context: serde_json::Value,
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub id: String,
+    pub total_items: i64,
+    pub ordered_items: Vec<String>,
+}
+
 
 impl From<&db::models::Actor> for Actor {
     fn from(actor_db: &db::models::Actor) -> Self {
@@ -133,6 +147,17 @@ impl TryFrom<&Actor> for db::models::NewActor {
             is_locked,
             is_suspended,
             is_silenced: false,
+        })
+    }
+}
+
+impl TryFrom<(&Actor, &webfinger::WebfingerInfo)> for db::models::NewActor {
+    type Error = errors::ActionError;
+    fn try_from(actor: (&Actor, &webfinger::WebfingerInfo)) -> Result<Self, Self::Error> {
+        let new_actor = Self::try_from(actor.0)?;
+        Ok(db::models::NewActor {
+            domain: actor.1.acct.clone().domain,
+            ..new_actor
         })
     }
 }

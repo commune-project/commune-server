@@ -1,11 +1,8 @@
-use crate::db::models::Actor;
-use crate::db::models::Follow;
-use crate::db::schema;
+use crate::db::models::{Actor, NewActor};
 use crate::errors::{ActionError, ActionResult};
 use diesel::prelude::*;
 use diesel::PgConnection;
-
-use chrono::Utc;
+use validator::Validate;
 
 pub fn get_actor_by_username_domain(
     db: &PgConnection,
@@ -34,28 +31,13 @@ pub fn get_actor_by_uri(db: &PgConnection, uri_in: &str) -> ActionResult<Actor> 
         })
 }
 
-pub fn follow_actor_by_uri(
-    db: &PgConnection,
-    follower_uri: &str,
-    following_uri: &str,
-) -> ActionResult<Follow> {
-    let follower_actor = get_actor_by_uri(db, follower_uri)?;
-    let following_actor = get_actor_by_uri(db, following_uri)?;
-    let now = Utc::now().naive_utc();
-    let new_follow = Follow {
-        follower_id: follower_actor.id,
-        following_id: following_actor.id,
-        created_at: now,
-        updated_at: Some(now),
-        role: if following_actor.is_locked {
-            String::from("pending")
-        } else {
-            String::from("follower")
-        },
-    };
-
-    diesel::insert_into(schema::follows::table)
-        .values(&new_follow)
-        .get_result::<Follow>(db)
-        .map_err(|_e| ActionError::InsertError)
+pub fn insert_new_actor(db: &PgConnection, new_actor: NewActor) -> ActionResult<Actor> {
+    use crate::db::schema::actors::dsl::*;
+    new_actor.validate().map_err(|_e| ActionError::InvalidForm)?;
+    diesel::insert_into(actors)
+        .values(&new_actor)
+        .get_result::<Actor>(db)
+        .map_err(|_e| {
+            ActionError::InsertError
+        })
 }

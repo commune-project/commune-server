@@ -1,24 +1,28 @@
 use serde::Serialize;
-use derive_more::{Display, Error};
 use warp;
+use diesel;
+use thiserror;
 
-#[derive(Debug, Display, Error, Serialize)]
+#[derive(Debug, thiserror::Error, Serialize)]
 #[serde(tag="error")]
 pub enum ActionError {
-    #[display(fmt = "internal error")]
+    #[error("internal error")]
     InternalError,
 
-    #[display(fmt = "not found")]
+    #[error("not found")]
     NotFound,
 
-    #[display(fmt = "insert error")]
+    #[error("insert error")]
     InsertError,
 
-    #[display(fmt = "invalid form")]
+    #[error("invalid form")]
     InvalidForm,
 
-    #[display(fmt = "fetch error")]
+    #[error("fetch error")]
     FetchError,
+
+    #[error("not authenticated")]
+    NotAuthenticated,
 }
 
 impl warp::reply::Reply for ActionError {
@@ -33,3 +37,14 @@ impl warp::reply::Reply for ActionError {
 }
 
 pub type ActionResult<T> = Result<T, ActionError>;
+
+impl From<diesel::result::Error> for ActionError {
+    fn from(err: diesel::result::Error) -> Self {
+        match err {
+            diesel::NotFound => ActionError::NotFound,
+            _ => ActionError::InternalError,
+        }
+    }
+}
+
+impl warp::reject::Reject for ActionError {}

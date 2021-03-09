@@ -7,16 +7,19 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use url;
 
+#[derive(Clone)]
 pub struct WebfingerInfo {
     pub acct: WebfingerAcct,
     pub ap: WebfingerAP,
 }
 
+#[derive(Clone)]
 pub struct WebfingerAP {
     pub uri: String,
     pub url: String,
 }
 
+#[derive(Clone)]
 pub struct WebfingerAcct {
     pub preferred_username: String,
     pub domain: String,
